@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Stack Music Production Masterclass</title>
+    <style>
+        :root {
+            --bg-dark: #0f1115;
+            --bg-panel: #1a1d24;
+            --bg-hover: #232730;
+            --primary: #00e5ff;
+            --primary-glow: rgba(0, 229, 255, 0.4);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 320px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .brand {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand h1 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .progress-container {
+            margin-top: 15px;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar-bg {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .nav-links {
+            padding: 15px 0;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background-color: var(--bg-hover);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .header {
+            padding: 24px 40px;
+            border-bottom: 1px solid var(--border);
+            background-color: var(--bg-dark);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 20px;
+            width: 300px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .search-bar:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .content-body {
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .phase-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .phase-desc {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Accordion Styles */
+        .module {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .module.completed {
+            border-color: var(--success);
+        }
+
+        .module-header {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            background-color: var(--bg-panel);
+            transition: background-color 0.2s;
+        }
+
+        .module-header:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .checkbox {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            margin-right: 15px;
+            cursor: pointer;
+            position: relative;
+            background: var(--bg-dark);
+            transition: all 0.2s;
+        }
+
+        .checkbox:checked {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .module-title {
+            flex-grow: 1;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .module-title span {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
+        .module-toggle {
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+
+        .module.open .module-toggle {
+            transform: rotate(180deg);
+        }
+
+        .module-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: var(--bg-dark);
+        }
+
+        .module-content-inner {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            line-height: 1.7;
+            color: #cbd5e1;
+        }
+
+        .action-item {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 229, 255, 0.05);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .action-item strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand">
+            <h1>Masterclass HQ</h1>
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Course Progress</span>
+                    <span id="progress-percentage">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+        <div class="nav-links" id="nav-links">
+            <!-- Navigation will be generated here by JS -->
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h2 id="current-phase-display" style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted);">Select a Phase</h2>
+            <input type="text" id="search-input" class="search-bar" placeholder="Search topics (e.g., Compression, Reverb)...">
+        </div>
+        <div class="content-body" id="content-body">
+            <!-- Accordion Content will be generated here by JS -->
+        </div>
+    </div>
+
+    <script>
+        // Full Course Data Array (Contains all data from Phases 1-13 & 17)
+        const courseData =[
+            {
+                id: 1,
+                title: "Phase 1: The Sonic Blueprint (Acoustics & Theory)",
+                desc: "Understand sound at a molecular level to build a solid physical foundation for your audio career.",
+                topics:[
+                    "Physics of Sound: Understand audio as physical energy—longitudinal waves traveling through mediums via high-pressure (compression) and low-pressure (rarefaction) zones.",
+                    "Frequency & Pitch: Master the math of music (f = 1/T); translate physical oscillations per second (Hertz) into exact musical pitches (e.g., A4 = 440Hz).",
+                    "Amplitude & Loudness: Demystify the logarithmic Decibel (dB) scale and Sound Pressure Level (SPL) to measure and manage acoustic power accurately.",
+                    "The Harmonic Series: Learn how fundamentals and their mathematically related overtones combine to create the unique 'timbre' or color of any sound.",
+                    "Phase Relationships: Control how waveforms interact when combined, utilizing constructive interference for power and avoiding destructive interference (comb filtering) that hollows out mixes.",
+                    "Psychoacoustics: Apply the Fletcher-Munson curves to understand how the human ear perceives mid-frequencies as louder than lows and highs at the same SPL.",
+                    "Spatial Perception: Manipulate Interaural Time Difference (ITD) and Intensity Difference (IID) to trick the brain into hearing 3D positioning in a 2D stereo field.",
+                    "The Haas Effect: Use delays under 35ms to create massive stereo width and depth without perceivable echoes.",
+                    "Room Modes: Calculate and treat standing waves—axial, tangential, and oblique modes—that cause bass buildup and dead zones in your studio.",
+                    "Acoustic Treatment: Strategically deploy porous absorbers for high/mids, diffusers for scatter, and broadband bass traps to flatten your room's response.",
+                    "Critical Listening 1: Train your ears to instantly identify specific frequencies and Q (bandwidth) factors without relying on visual analyzers.",
+                    "Critical Listening 2: Deconstruct commercial hit records to map their 3D soundstage, depth, and panning strategies.",
+                    "Advanced Rhythm Theory: Break out of standard grids by programming polyrhythms (multiple rhythms in the same time) and polymeters (different time signatures looping concurrently).",
+                    "Functional Harmony: Utilize Roman numeral analysis (I-IV-V-vi) to understand the mathematical tension and release behind modern chord progressions.",
+                    "Modal Interchange: Borrow chords from parallel keys (e.g., using a minor iv chord in a major key) to create unexpected emotional impacts.",
+                    "Voice Leading: Arrange chord inversions so individual notes move smoothly by step, creating lush, professional-sounding pads and string sections.",
+                    "The Circle of Fifths: Use this geometric representation of keys to execute seamless modulations and key changes in electronic and pop structures.",
+                    "Microtonality: Explore tuning systems outside standard Western 12-tone equal temperament (Xenharmonics) for alien or culturally specific tonalities.",
+                    "Ear Protection: Implement strict SPL limits and monitoring breaks to prevent Tinnitus and ensure a 40+ year career in audio.",
+                    "Monitor Calibration: Set up an 85 dB (or lower for small rooms) reference level using pink noise and an SPL meter for consistent mixing decisions.",
+                    "Subwoofer Integration: Tune crossover points and align phase so your sub acts as an invisible extension of your mains, not a separate booming box.",
+                    "The Psychology of Sound: Harness evolutionary acoustic triggers (e.g., dissonant high frequencies for anxiety, deep sub for power) to manipulate listener emotions.",
+                    "History of Audio: Study the evolution of recording from mechanical wax cylinders and analog tape to modern pristine 32-bit floating-point digital systems.",
+                    "Studio Ergonomics: Optimize your physical workspace—lighting, chair height, and cable management—to eliminate physical and mental friction.",
+                    "Philosophy of Production: Adopt the 'Commit Early' mindset to print audio and make decisions, avoiding the paralysis of infinite digital undo's."
+                ]
+            },
+            {
+                id: 2,
+                title: "Phase 2: The DAW Ecosystem & Infrastructure",
+                desc: "Master your Digital Audio Workstation to remove all technical barriers between your brain and the speakers.",
+                topics:[
+                    "The Digital Audio Engine: Understand how analog audio is digitized via Sample Rates (capturing frequency) and Bit Depth (capturing dynamic range).",
+                    "Buffer Size vs. Latency: Master hardware buffers: low buffers (32-128 samples) for zero-latency recording, high buffers (1024+) for CPU-heavy mixing.",
+                    "Signal Flow 101: Trace audio precisely from input to master bus, mastering the difference between pre-fader (independent) and post-fader (dependent) sends.",
+                    "Ableton Live: Exploit the Session view for non-linear looping/brainstorming and the Arrangement view for final track structuring.",
+                    "Pro Tools: Learn the industry-standard key commands for lightning-fast tracking, comping, and audio editing in commercial studios.",
+                    "Logic Pro: Utilize the powerful MIDI environment, stock synths, and intuitive composing tools favored by film scorers and pop producers.",
+                    "Template Architecture: Build pre-routed, color-coded DAW templates with your go-to instruments and busses so you can start writing in seconds.",
+                    "File Management: Establish bulletproof naming conventions, folder hierarchies, and redundant 3-2-1 backup systems to never lose a project.",
+                    "The MIDI Protocol: Go beyond notes; program Continuous Controllers (CC), Velocity, Aftertouch, and SysEx data for human-like expression.",
+                    "MIDI Scripting: Write basic Python or remote scripts to make generic MIDI keyboards communicate bi-directionally with your DAW.",
+                    "MPE (MIDI Polyphonic Expression): Assign per-note pitch bend, slide, and pressure to create hyper-expressive acoustic-style performances on modern controllers.",
+                    "Max for Live (M4L): Crack open Ableton's visual programming language to build your own LFOs, step sequencers, and granular delays.",
+                    "Plugin Management: Organize and bridge VST3, AU, and AAX formats, keeping your plugin folders lean and crash-free.",
+                    "CPU Optimization: Manage system resources by freezing tracks, bouncing to audio, and understanding how your DAW distributes load across CPU cores.",
+                    "Gain Staging (Digital): Keep track levels at a healthy -18dBFS to -12dBFS average, preventing internal clipping and optimizing analog-modeled plugins.",
+                    "Bussing & Sub-mixing: Route dozens of tracks into consolidated group stems (e.g., 'All Drums', 'All Synths') for top-down mixing control.",
+                    "Sidechain Architecture: Route audio to trigger dynamics processors—not just for pumping bass, but for masking control and dynamic EQing.",
+                    "Automation Mastery: Draw and record parameter changes over time to create evolving, breathing arrangements rather than static loops.",
+                    "Non-Linear Editing: Master time-stretching algorithms (Warping, Flex-Time) to lock off-grid audio to your session tempo without artifacts.",
+                    "The 'Ghost' Track: Set up muted tracks specifically to send MIDI/Audio triggers to gates and sidechains for invisible rhythmic control.",
+                    "VCA Groups: Use Voltage Controlled Amplifier-style faders to control the volume of multiple grouped tracks without altering their post-fader send proportions.",
+                    "Keyboard Shortcuts: Ditch the mouse; memorize hundreds of key commands to make the DAW an invisible extension of your brain.",
+                    "External Gear Integration: Route audio out of your interface into physical analog compressors/EQs and back in, calculating latency compensation perfectly.",
+                    "Control Surfaces: Map motorized faders and grid controllers (Push, Maschine) to tactilely mix and produce without staring at a screen.",
+                    "Collaborative Workflow: Prepare cleanly labeled, zeroed-out stems and utilize cloud platforms (Splice, Dropbox) for seamless remote co-production."
+                ]
+            },
+            {
+                id: 3,
+                title: "Phase 3: Synthesis & Advanced Sound Design",
+                desc: "Learn to build any sound imaginable from raw mathematical waveforms.",
+                topics:[
+                    "Subtractive Synthesis: Sculpt sound by starting with a rich oscillator (saw/square) and removing harmonics using Low-Pass, High-Pass, and Band-Pass filters.",
+                    "Wavetable Synthesis: Scan through 3D tables of single-cycle waveforms over time (via Serum/Vital) for evolving, modern electronic timbres.",
+                    "Frequency Modulation (FM): Modulate the frequency of one oscillator (Carrier) with another (Modulator) at audio rates to create complex, metallic, or bell-like tones.",
+                    "Additive Synthesis: Construct sounds from the ground up by stacking individual pure sine waves (partials) at specific amplitudes and frequencies.",
+                    "Granular Synthesis: Chop audio samples into microscopic 'grains' (1-50ms) and scatter them to create lush, atmospheric pads and glitches.",
+                    "Physical Modeling: Use mathematical equations (Excitor + Resonator) to simulate acoustic properties like plucked strings, blown tubes, and struck metal.",
+                    "Sample-Based Synthesis: Map thousands of individual audio recordings across a keyboard with varying velocities (e.g., Kontakt) for ultra-realistic virtual instruments.",
+                    "Modular Synthesis Theory: Understand signal flow as raw electricity—patching Control Voltage (CV) for modulation, Gates for duration, and Triggers for events.",
+                    "Virtual Modular: Translate hardware eurorack patching into software using VCV Rack or Bitwig's The Grid for limitless routing possibilities.",
+                    "The Art of the 'Layer': Stack sounds covering different frequency bands and transient profiles (e.g., a synthetic sub + organic cello) for massive hybrid tones.",
+                    "LFO Modulation: Assign Low-Frequency Oscillators to pitch, filter cutoff, or amplitude for rhythmic pulsing, vibrato, and dubstep 'wobbles'.",
+                    "Envelopes (ADSR): Sculpt the timeline of a sound (Attack, Decay, Sustain, Release) to turn a continuous drone into a snappy pluck or a sweeping pad.",
+                    "Filter Resonance: Boost the frequency exactly at the filter's cutoff point to create squelchy, 'acid' sounds that can even self-oscillate into a pure sine wave.",
+                    "Frequency vs. Pitch Shifters: Pitch shifting preserves harmonic relationships; frequency shifting adds a fixed Hz amount to all harmonics, creating dissonant, robotic textures.",
+                    "Distortion & Saturation: Add harmonic density via soft-clipping, tube warmth, tape drive, or destructive bit-crushing to make sounds cut through a mix.",
+                    "The 'Washed Out' Sound: Push sounds 100% wet into massive reverbs, render them to audio, and sidechain them for modern, ethereal background textures.",
+                    "Resampling Workflow: Bounce complex MIDI and plugin chains to a single audio file, then chop, reverse, and manipulate that new file for unique artifacts.",
+                    "Vocoders & Talkboxes: Impose the spectral envelope of your voice (modulator) onto a synthesizer (carrier) for classic Daft Punk-style robotic vocals.",
+                    "Field Recording: Step outside with a portable stereo mic to capture environmental ambiences, rain, and street noise to give tracks organic real-world depth.",
+                    "Found Sound Processing: Strike pots, pans, and everyday objects, then pitch and transient-shape them in the DAW to create completely original drum kits.",
+                    "Synthesizing Percussion: Use rapid pitch envelopes on sine waves for kicks, and noise oscillators with fast decay envelopes for hi-hats and snares.",
+                    "Phase Plant & Architecture: Combine granular, wavetable, and sample engines into one modular patch using multi-engine hybrid synthesizers.",
+                    "Randomization: Use sample-and-hold (S&H) LFOs and probability sequencing to create generative, ever-evolving soundscapes that never repeat.",
+                    "Preset Management: Organize your engineered sounds into a tagged, easily searchable custom library to develop your definitive 'signature sound.'",
+                    "UI/UX for Sound Design: Group complex synthesis parameters to 4-8 simple macro knobs, allowing for fast, intuitive tweaking during the songwriting phase."
+                ]
+            },
+            {
+                id: 4,
+                title: "Phase 4: Rhythmic Engineering & Beat Making",
+                desc: "Establish the undisputed heartbeat of your production through micro-timing and transient design.",
+                topics:[
+                    "The 'Kick/Snare' Relationship: Tune kicks and snares to complementary frequencies and align their waveforms at the sample level to prevent phase cancellation.",
+                    "Drum Layering: Build the perfect hit by combining an attack layer (click/snap), a body layer (thump/meat), and a tail layer (room/noise).",
+                    "Transient Shaping: Use specialized dynamic processors to independently boost the initial stick 'crack' (attack) or lengthen the drum ring (sustain).",
+                    "The 'Pocket': Nudge audio regions milliseconds off the DAW grid to create human groove, swing, and unquantized, Dilla-style timing.",
+                    "Ghost Notes: Program low-velocity snare and hi-hat hits between the main beats to create rolling momentum and 'shuffle' in your grooves.",
+                    "The 808 Science: Master the Roland TR-808 sub-bass: tuning it to the key of your song, managing portamento glides, and adding saturation for small-speaker translation.",
+                    "Breakbeat Chopping: Slice classic funk drum loops (like the Amen Break) into individual hits and re-sequence them for Jungle, Drum & Bass, or Boom Bap.",
+                    "Hybrid Drums: Layer hyper-quantized electronic samples underneath raw, unquantized live drum kit recordings for power and humanity.",
+                    "Genre Focus: Trap/Hip-Hop: Master the architecture of triplet hi-hat rolls, syncopated 808s, and heavy half-time snare placement.",
+                    "Genre Focus: House/Techno: Perfect the relentless 4-on-the-floor kick, off-beat hi-hat, and evolving percussive tension that drives dancefloors.",
+                    "Genre Focus: Lo-Fi: Engineer nostalgia by applying tape flutter, vinyl crackle, drastic low-pass filtering, and lazy, delayed timing.",
+                    "Genre Focus: Cinematic/Epic: Construct massive, Hans Zimmer-style impacts using layered taikos, anvils, and sub-booms drenched in hall reverb.",
+                    "Polyrhythmic Beats: Layer percussion in different time signatures (e.g., 3 over 4) to create mesmerizing, shifting rhythms that loop over longer periods.",
+                    "Humanization: Automatically randomize MIDI velocity and micro-timing, and use 'round-robin' samplers that play slightly different recordings on each hit.",
+                    "Drum Buss Processing: Route all drums to a single channel and apply gentle VCA compression and saturation to 'glue' disparate samples into one cohesive kit.",
+                    "Parallel Drum Crushing: Heavily smash a duplicate drum bus with aggressive FET compression and blend it subtly under the clean drums for massive thickness.",
+                    "Sidechaining the Low End: Trigger rapid volume ducks on the bass/808 every time the kick drum hits to prevent low-frequency mud and distortion.",
+                    "The Art of the Fill: Program tom rolls, snare builds, and crash cymbals at the end of 8-bar phrases to transition listener energy into new song sections.",
+                    "Percussion Textures: Layer organic foley (keys jangling, paper tearing) underneath standard electronic hi-hats to create proprietary rhythmic 'glue.'",
+                    "Groove Extraction: Analyze the timing and velocity of your favorite classic tracks and extract their 'groove pool' to apply to your own rigid MIDI.",
+                    "Sample Clearances: Understand the legal mechanics of interpolations vs. direct samples, and how to clear audio through publishers and master copyright holders.",
+                    "The 'Drop' Architecture: Mute the drums right before the chorus, employ white noise risers, and filter out bass to maximize the psychoacoustic impact of the drop.",
+                    "Velocity Sensitivity: Map MIDI velocity to filter cutoff and envelope attack (not just volume) so hard hits sound inherently sharper and more aggressive.",
+                    "Multiband Drum Processing: Use multiband compression to squash overly bright hi-hats while leaving the punch of the kick and snare completely untouched.",
+                    "Building a Custom Kit: Curate 50 of your absolute best kicks, snares, and hats into a proprietary template so you never waste time scrolling through sample packs again."
+                ]
+            },
+            {
+                id: 5,
+                title: "Phase 5: Audio Engineering & Vocal Production",
+                desc: "Capture world-class human performances using proper microphone techniques and digital vocal processing.",
+                topics:[
+                    "Microphone Types: Select the right tool: Dynamics for loud/live sound, Condensers for studio detail, Ribbons for warm/dark tone, and Tubes for vintage harmonics.",
+                    "Polar Patterns: Reject unwanted room noise by mastering directional pickup patterns—Cardioid, Omnidirectional, Figure-8—and exploiting the bass-boosting Proximity Effect.",
+                    "Preamp Character: Drive solid-state preamps for fast, clean, transparent tracking, or push tube/transformer preamps for colored, saturated harmonic distortion.",
+                    "A/D Conversion: Understand how premium audio interfaces use pristine internal clocking to sample analog voltage into digital data without phase smearing or jitter.",
+                    "Stereo Miking 1: Capture wide acoustic spaces with phase-coherent XY (coincident) and time-delayed AB (spaced pair) microphone configurations.",
+                    "Stereo Miking 2: Utilize advanced techniques like Mid-Side (M/S) for perfect mono compatibility and ORTF for natural, human-ear-like spatial imaging.",
+                    "Vocal Tracking: Engineer zero-latency, reverb-enhanced headphone mixes to make the vocalist feel like a star, ensuring maximum emotional performance.",
+                    "Microphone Placement: Manipulate tone physically by moving the mic off-axis to tame harshness, or closer to the chest/soundhole for bass emphasis.",
+                    "Room Bleed: Use acoustic gobos, strategic Figure-8 null points, and dynamic gates to isolate instruments tracking simultaneously in the same room.",
+                    "Vocal Comping: Systematically record 4-5 takes, highlight the best phrases, and stitch them into one flawless, imperceptible 'Golden Take' (compilation).",
+                    "Pitch Correction 1: Surgically edit pitch drift, vibrato, and note transitions manually in Melodyne so the vocal is perfectly in tune but still sounds acoustic and human.",
+                    "Pitch Correction 2: Push Auto-Tune settings to 0ms retune speed to achieve the hard-tuned, synthetic, modern pop/hip-hop vocal aesthetic.",
+                    "Vocal Timing: Use time-alignment software (VocALign/Revoice) to snap double tracks and backing harmonies perfectly to the timing of the lead vocal.",
+                    "De-Essing: Use frequency-specific, fast-acting compression to duck harsh 'S' and 'T' sibilance without dulling the overall brightness of the vocal.",
+                    "Vocal Layering: Thicken choruses by recording dedicated double tracks, panned triples, and complex 3-to-4 part harmony stacks.",
+                    "The 'Main Stage' Vocal: Chain an 1176 (fast attack to catch peaks) into an LA-2A (slow, smooth leveling) for the aggressive, up-front modern vocal sound.",
+                    "Background Vocals: EQ out the low-mids and presence frequencies of backing vocals so they wrap around the lead vocal without fighting it for space.",
+                    "Vocal FX: Design creative moments using automated formant shifting, lo-fi telephone EQs, and throw-delays on specific end-of-phrase words.",
+                    "Breath Management: Manually automate breath volumes down by -10dB rather than silencing them completely to maintain the singer's natural humanity.",
+                    "Coaching the Artist: Act as a studio psychologist—knowing when to push for another take, when to praise, and how to dim the lights to capture 'the vibe.'",
+                    "Recording Mobile: Employ reflection filters, heavy blankets, and dynamic mics to achieve studio-quality vocal tracking in highly reflective hotel rooms.",
+                    "DI Recording: Capture clean Direct Injection signals for guitars and bass to allow for total flexibility via re-amping during the mix phase.",
+                    "Amp Simulation: Use convolution tech and precise Impulse Responses (IRs) to recreate the exact tone of a Marshall or Fender amp recorded in a million-dollar studio.",
+                    "Multi-mic Phase Alignment: Use precision delays to align the waveforms of an amp mic and a DI signal, ensuring the combined sound is thick, not hollow.",
+                    "The Vocal Producer's 'Ear': Develop the intuition to prioritize emotional delivery and character over pitch-perfect, sterile, or robotic technical perfection."
+                ]
+            },
+            {
+                id: 6,
+                title: "Phase 6: The Art of the Mix (Sculpting)",
+                desc: "Blend dozens of individual tracks into a massive, 3D sonic landscape through EQ, compression, and spatial FX.",
+                topics:[
+                    "The First Move: Establish a solid static mix using only volume faders and pan pots, ensuring the core balance and groove work before touching a single plugin.",
+                    "EQ 101: Use narrow subtractive EQ to surgically cut bad resonance and mud, and use wide additive EQ (analog emulations) to musically boost the highs and lows.",
+                    "Dynamic EQ: Set EQ bands to trigger only when a specific frequency crosses a threshold, taming a harsh vocal only when the singer belts loudly.",
+                    "Compressors 1: Select the right circuit: VCA for punchy drums, FET for aggressive vocals, Opto for smooth bass, and Vari-Mu for mix bus glue.",
+                    "Compressors 2: Master the envelope parameters—Threshold (when it grabs), Ratio (how hard it grabs), Attack (transient pass-through), and Release (groove shaping).",
+                    "Multiband Compression: Split audio into 3-4 frequency bands, independently compressing the unruly low-end of a synth without squashing its airy top-end.",
+                    "Serial Compression: Spread the workload by chaining multiple compressors doing 2-3dB of gain reduction each, rather than one compressor working too hard.",
+                    "Parallel Processing: Duplicate a track, obliterate it with heavy compression/distortion, and blend it subtly under the uncompressed original to retain transients.",
+                    "Saturation Artistry: Apply subtle tape flutter to drums, tube drive to vocals, and transformer weight to bass to generate upper harmonics that translate to small speakers.",
+                    "Reverb Architecture: Place elements in physical space using short Rooms for drums, Plates for bright vocals, and massive Halls for lush synth pads.",
+                    "Convolution Reverb: Load Impulse Responses to digitally place your studio-recorded acoustic guitar inside the Taj Mahal or a famous 1970s echo chamber.",
+                    "Delay Strategies: Use 1/4-note ping-pong delays for width, slapback for rock vocals, and sidechain the delay to the vocal so the echoes duck out of the singer's way.",
+                    "Creating Depth: Manipulate the psychoacoustics of distance by rolling off high frequencies and increasing the wet-reverb ratio on elements you want pushed to the back.",
+                    "Creating Width: Exploit the stereo field using micro-pitch shifting, Haas delays, and Mid-Side EQ to widen synths without compromising mono punch.",
+                    "Mono Compatibility: Collapse your master bus to a single channel constantly to ensure your wide, phase-shifted synths don't completely disappear on a club system or phone.",
+                    "Frequency Slotting: Carve puzzle-piece EQ pockets so the kick owns 50Hz, the bass owns 100Hz, the snare owns 200Hz, and the vocal owns 2kHz.",
+                    "Transient vs. Sustain: Balance the sharp 'attacks' (drums/plucks) with smooth 'sustains' (pads/vocals) so the mix isn't exhausting to the ears or completely muddy.",
+                    "The Mix Bus: Apply broad, gentle EQ (Pultec style) and slow-attack VCA compression (SSL style) across the master out to cohesively 'glue' the record together.",
+                    "Automation: Manually ride the vocal fader phrase-by-phrase and automate synth filters to ensure the mix constantly breathes and holds listener attention.",
+                    "Reference Mixing: Use A/B referencing plugins to blindly compare your mix's frequency spectrum and LUFS levels against commercially mastered hit records.",
+                    "High-Pass Everything? Debunk the myth of high-passing every track; learn to use gentle low-shelfs to remove mud while keeping the phase integrity and body intact.",
+                    "The 'Breathe' Effect: Sidechain your massive vocal reverbs to the dry vocal itself, so the space only swells up during the pauses between words.",
+                    "Mixing for Different Systems: A/B your mix on studio monitors, car stereos, AirPods, and laptop speakers to ensure translation across consumer devices.",
+                    "Top-Down Mixing: Start balancing with your master bus processing already engaged, shaping the stems into the master glue rather than fighting it at the end.",
+                    "Finishing the Mix: Accept the law of diminishing returns; learn the psychological triggers of knowing when a mix is done so you can export and walk away."
+                ]
+            },
+            {
+                id: 7,
+                title: "Phase 7: Mastering & Final Delivery",
+                desc: "Prepare your final mixes to stand shoulder-to-shoulder with commercial releases on Spotify, radio, and club systems.",
+                topics:[
+                    "The Role of Mastering: Provide the final objective ear; subtly enhancing the mix, optimizing playback loudness, and preparing the audio for distribution.",
+                    "Linear Phase EQ: Utilize CPU-heavy EQs that adjust frequencies without shifting the time-phase of the audio, perfect for transparent mastering cuts.",
+                    "Mid-Side Mastering: EQ the mono center (kick, bass, lead vocal) independently from the stereo sides (wide synths, reverbs) to focus power and expand width.",
+                    "Mastering Compression: Apply incredibly gentle ratio (1.5:1) and slow-attack compression to barely kiss the peaks, uniting the mix dynamics by 1-2 dB.",
+                    "Clipping vs. Limiting: Shave off instantaneous drum transients with a soft-clipper to gain transparent headroom before feeding the signal into the final brickwall limiter.",
+                    "The 'Wall of Sound': Use multiband limiters to densely pack audio energy into every frequency spectrum, achieving maximum commercial loudness.",
+                    "LUFS Standards: Target varying Loudness Units Full Scale; prepare dynamic -14 LUFS masters for Spotify and crushed, aggressive -6 LUFS masters for club DJs.",
+                    "True Peak Limiting: Catch inter-sample peaks—audio waveforms that peak between digital samples—to ensure zero distortion when converted to MP3/AAC.",
+                    "Dithering: Add highly specific, mathematical low-level noise when reducing from 32-bit to 16-bit to prevent harsh digital truncation distortion in the reverb tails.",
+                    "Sample Rate Conversion: Downsample cleanly from high-resolution 96kHz mixing sessions to standard 44.1kHz delivery formats using high-quality linear phase filters.",
+                    "Stem Mastering: Request groups (drums, bass, music, vocals) instead of a stereo mixdown to fix fundamental mix flaws without ruining the overall balance.",
+                    "Metadata & ISRC: Embed the International Standard Recording Code, artwork, and songwriter credits deep into the digital file for royalty tracking and radio play.",
+                    "Vinyl Mastering: Prepare specific 'wax' masters by mono-ing sub-bass, taming harsh sibilance, and managing dynamic range so the physical needle won't jump the groove.",
+                    "Cassette Mastering: Pre-compensate for analog tape hiss, narrow frequency response, and magnetic saturation to optimize modern tracks for retro cassette releases.",
+                    "The 'Mastering Ear': Train yourself to listen strictly for microscopic technical flaws—bad edits, clicks, digital pops, and low-end phase anomalies.",
+                    "Reference Metering: Rely on visual tools like Vectorscopes for stereo correlation, Spectrograms for frequency build-up, and LUFS meters for perceived loudness.",
+                    "Dynamic Range Management: Walk the razor's edge of the 'Loudness War'—making the track competitively loud without destroying the physical punch of the snare.",
+                    "Final QC (Quality Control): Implement a strict 3-point check (headphones, monitors, mono) of the final bounced file to guarantee zero export errors or glitches.",
+                    "Exporting for Video: Render 48kHz / 24-bit audio files, the uncompressed industry standard required by video editors and film post-production houses.",
+                    "Album Flow: Sequence the EP/Album carefully, ensuring gapless transitions, matching relative loudness between tracks, and maintaining a cohesive sonic narrative.",
+                    "Mastering for Radio: Understand how terrestrial FM radio applies heavy multiband 'broadcast limiters,' ensuring your master doesn't distort when aired.",
+                    "AI Mastering: Utilize algorithmic tools like Ozone Master Assistant or Landr to get a 90% baseline, then manually tweak the parameters for the final 10% polish.",
+                    "DIY vs. Professional: Recognize when a project requires your bedroom mastering setup versus the golden ears and perfect acoustics of a dedicated mastering engineer.",
+                    "Headroom Management: Bounce your unmastered mixdowns peaking at -6dBFS with absolutely nothing on the master bus, leaving maximum canvas for the mastering engineer.",
+                    "The 'Air' Band: Apply a pristine, analog-modeled high-shelf EQ boost above 15kHz to give the master an expensive, shimmering top-end clarity."
+                ]
+            },
+            {
+                id: 8,
+                title: "Phase 8: Live Performance & Multi-Media",
+                desc: "Take your studio productions out of the bedroom and onto the global stage.",
+                topics:[
+                    "The Hybrid Set: Blend rigid DAW backing tracks with live musicians, using click tracks and cue channels to keep humans locked to the digital grid.",
+                    "Ableton Live for Performance: Launch audio clips non-linearly using Session View's Scenes, and program Follow Actions for generative, unpredictable song structures.",
+                    "Live Looping 101: Record layers of vocals, guitars, and beatboxing in real-time, stacking loops on the fly to build an entire track in front of the audience.",
+                    "The Live Rig: Build a tour-ready, shock-mounted rack with rock-solid audio interfaces, powered MIDI hubs, and uninterruptible power supplies (UPS).",
+                    "Redundancy: Engineer an auto-switching 'Play-B' backup laptop system that instantly and silently takes over if the primary performance computer crashes.",
+                    "Stage Monitoring: Ditch floor wedges for custom-molded In-Ear Monitors (IEMs), providing a pristine, hearing-safe click and cue mix isolated from the crowd.",
+                    "Controllerism: Master grid controllers like the Ableton Push or Novation Launchpad to finger-drum, trigger clips, and perform effects like an instrument.",
+                    "External Hardware Sync: Send MIDI Clock from your DAW to keep external drum machines, arpeggiators, and hardware synths perfectly in time with the set.",
+                    "Live Audio Processing: Route live stage vocals through your laptop to apply real-time Auto-Tune, beat-synced delays, and massive reverbs.",
+                    "Visual Integration: Introduction to TouchDesigner and Resolume, sending MIDI/OSC data from your DAW to trigger reactive video walls and VJ loops.",
+                    "Kinetic Typography: Sync lyric animations directly to the SMPTE timecode of your backing tracks for massive, perfectly timed stadium karaoke moments.",
+                    "MIDI-to-Light: Output MIDI notes from your DAW into software that converts it to DMX protocol, programming your own automated light show.",
+                    "The 'Laptop Musician': Overcome the 'checking email' stigma by incorporating intense physical movement, standing rigs, and tactile hardware manipulation into your stage presence.",
+                    "Building a Setlist: Graph the emotional and BPM journey of your 60-minute set, mapping peaks, valleys, and seamless DJ-style transitions between songs.",
+                    "Live Improv: Set up quantized 'Safe Zones' in your software so you can radically twist knobs and scramble audio without ever drifting offbeat or out of key.",
+                    "Latency in Live Sets: Strip away CPU-heavy look-ahead limiters and linear-phase EQs from your live session to achieve imperceptible sub-10ms monitoring latency.",
+                    "The Footswitch Workflow: Program MIDI foot controllers to toggle vocal distortions, punch-in loops, and trigger next scenes while your hands are on instruments.",
+                    "Spatial Audio for Live: Interface with L-Acoustics L-ISA or 4DSOUND to pan synths and vocals around a 360-degree multi-speaker stadium rig.",
+                    "Recording the Live Set: Capture a quick stereo 2-track 'Board Mix' for reference, and record multitrack raw stems for future live album releases.",
+                    "Stage Management: Learn the technical language required to communicate inputs, DI requirements, and monitor mixes via a stage plot to the Front of House (FOH) engineer.",
+                    "Touring Tech: Design travel-ready 'fly rigs' that fit into overhead airline bins and handle universal 110V/220V power standards.",
+                    "Interactive Art: Wire proximity sensors, lasers, and physical triggers via Arduino to generate MIDI notes, turning the stage itself into a musical instrument.",
+                    "Web-Streaming Live: Optimize OBS Studio with multi-camera angles, high-res screen captures, and direct DAW audio routing for professional Twitch/YouTube sets.",
+                    "The Live 'Visualizer': Create dynamic, audio-reactive digital avatars or 3D environments for immersive online digital concerts.",
+                    "Post-Show Analysis: Systematically review the multitrack recordings and crowd response footage the morning after a gig to tweak the setlist and fix transition flaws."
+                ]
+            },
+            {
+                id: 9,
+                title: "Phase 9: Modern Innovation & AI",
+                desc: "Stay ahead of the curve by integrating artificial intelligence and spatial audio into your workflow.",
+                topics:[
+                    "AI Stem Separation: Utilize neural networks like Lalal.ai or iZotope RX to cleanly extract acapellas and drum stems from final stereo mixes for bootleg remixes.",
+                    "AI Composition: Guide algorithmic MIDI generators to instantly produce complex chord progressions and melodic starting points when experiencing writer's block.",
+                    "Vocal Transformation: Use Retrieval-based Voice Conversion (RVC) models to map your vocal timbre into a completely different virtual singer or digital avatar.",
+                    "AI Mixing Assistants: Let machine learning tools (Neutron, Gullfoss) analyze your frequency masking in real-time to suggest intelligent, dynamic EQ curves.",
+                    "Generative Audio: Deploy endless, non-looping ambient algorithmic systems that compose and evolve texture music infinitely in real-time.",
+                    "Spatial Audio: Dolby Atmos: Master the 7.1.4 paradigm; move away from stereo channels and place 'audio objects' dynamically in a 3D hemisphere.",
+                    "Binaural Mixing: Translate surround-sound Atmos and spatial mixes down to a 2-channel binaural render that simulates 3D space on standard stereo headphones.",
+                    "The Metaverse & Music: Prepare spatial audio stems, interactable sound design, and live streams specifically tailored for VR environments and digital concerts.",
+                    "Blockchain for Producers: Navigate the utility of Web3, setting up smart contracts for automatic, decentralized royalty splits without intermediary labels.",
+                    "Custom Tool Building: Write Python scripts to batch-process mundane audio tasks—like automatically normalizing and naming 500 drum samples in seconds.",
+                    "Neural Networks in Synthesis: Use tools like Synplant 2 to let AI listen to an audio file and automatically reverse-engineer the exact synthesizer patch required to recreate it.",
+                    "Remote Collaboration: Stream zero-latency, high-resolution master-bus audio directly from your DAW to a co-producer across the world using Audiomovers.",
+                    "Cloud-Based Production: Explore entirely browser-based DAWs (BandLab, Soundtrap) and cloud-synced sample platforms (Splice) for collaborative, cross-device workflows.",
+                    "The Ethics of AI: Navigate the intense legal and moral landscape of copyrighting AI-generated art, deepfake vocals, and training models on existing artist discographies.",
+                    "Adaptive Music for Games: Program interactive music in FMOD/Wwise so the arrangement dynamically changes intensity based on the player's health or location.",
+                    "AI Lyric Generation: Feed themes into Large Language Models (LLMs) to brainstorm rhymes, metaphors, and phonetic structures for top-line vocal writing.",
+                    "Smart Sample Management: Let AI engines (Sononym, Atlas) analyze your messy 1TB hard drive and visually organize sounds by timbral similarity and pitch.",
+                    "VR Audio: Design 6 Degrees of Freedom (6DOF) soundscapes where the mix updates dynamically as the user physically walks around virtual instruments.",
+                    "Algorithmic Remixing: Utilize intelligent DAW features that can automatically re-cut, warp, and conform your 3-minute pop song into a 15-second TikTok edit.",
+                    "The Future of Hardware: Integrate next-gen, tactile MIDI controllers equipped with haptic feedback, AI mapping, and multi-touch MPE surfaces.",
+                    "Synthesizing Emotion: Study neuro-audio analytics to understand exactly how algorithmic hit-prediction software evaluates the hook density of modern pop.",
+                    "Automated Mastering: Critically compare the limitations of an AI mastering algorithm against the nuanced, emotional decisions of a human mastering engineer.",
+                    "Web MIDI & Audio API: Understand how browsers process high-fidelity DSP, allowing you to code and host functional synthesizers directly on a website.",
+                    "AI-Driven Soundscapes: Build personalized, brain-wave-syncing audio environments generated on the fly for deep work, sleep, or acoustic therapy.",
+                    "Staying Human: Establish a philosophy of using AI strictly as an assistant to eliminate tedious technical barriers, fiercely protecting your raw, human creative intent."
+                ]
+            },
+            {
+                id: 10,
+                title: "Phase 10: The Business & Portfolio",
+                desc: "Turn your passion into a lifelong, sustainable, and lucrative enterprise.",
+                topics:[
+                    "Finding Your Signature: Evolve from making generic beats to developing a 'Sonic Brand'—a unique combination of sound design and rhythm that makes you instantly recognizable.",
+                    "Portfolio Building: Adopt the '3-Track Rule': pitch exactly three perfectly curated, sonically cohesive tracks to A&Rs, avoiding the amateur mistake of sending a 15-track dump.",
+                    "Networking: Master the art of the soft pitch; learn to add value in studio sessions and approach Creative Directors and A&Rs without acting like a desperate fan.",
+                    "Copyright Law: Understand the legal split between the 'Composition' (the written song/Publishing) and the 'Sound Recording' (the Master/Label).",
+                    "Publishing 101: Register with a PRO (ASCAP, BMI, PRS) to legally collect mechanical and performance royalties every time your song is streamed, sold, or played on TV.",
+                    "Music for Sync: Tailor instrumentals for supervisors; build tracks with high-impact edit points, clear emotional builds, and zero uncleared vocal samples for lucrative TV/Film placements.",
+                    "Content Creation: Hack social media algorithms by breaking down your DAW sessions, offering production tutorials, and building a cult audience on TikTok/Instagram Reels.",
+                    "The 'Producer' Contract: Decode standard industry agreements—Points (master royalties), Advances, Work-For-Hire clauses, and your legal rights as a co-writer.",
+                    "Ghost Producing: Weigh the lucrative, upfront cash of writing tracks silently for famous DJs/artists against the long-term cost of giving up your public credit.",
+                    "Building a Label: Learn the logistics of becoming your own boss: acquiring an LLC, setting up DistroKid/TuneCore, handling ISRC codes, and executing marketing rollouts.",
+                    "Freelancing: Optimize profiles on platforms like SoundBetter or Fiverr to generate consistent side-income mixing, mastering, or session-playing for global clients.",
+                    "Studio Monetization: Treat your physical studio as a business asset—rent out downtime to other producers, or shift from charging by the hour to charging by the project.",
+                    "Brand Partnerships: Secure beta-testing slots, sponsorships, and affiliate deals with plugin manufacturers and hardware tech companies to generate alternative revenue.",
+                    "Tax for Musicians: Legally deduct your studio gear, software subscriptions, gig travel, and home office square-footage to survive as a self-employed creative.",
+                    "The Pitch Deck: Design a sleek, professional PDF presentation outlining your bio, key streaming stats, press photos, and unique value proposition for label meetings.",
+                    "YouTube for Producers: Build a monetized channel offering beat-making streams, plugin reviews, and educational content to drive traffic directly to your beat store.",
+                    "Community Building: Transition your casual listeners into a dedicated fanbase via private Discord servers, Twitch streams, and exclusive Patreon subscriptions.",
+                    "Handling Rejection: Develop the thick skin required for the music industry, separating your self-worth from A&R 'passes,' unreturned emails, and harsh mix critiques.",
+                    "Diversifying Income: Protect against fluctuating streaming payouts by selling custom Sample Packs, Serum Presets, DAW Templates, and physical merchandise.",
+                    "Project Management: Treat album creation like tech development—use Notion or Trello to track tracking phases, mix revisions, clearance statuses, and PR deadlines.",
+                    "Mental Health: Implement strict studio boundaries, daylight breaks, and exercise routines to prevent the severe burnout associated with 14-hour screen sessions.",
+                    "The Global Market: Study international streaming trends to pitch specific genres (e.g., K-Pop, Afrobeats, Latin Trap) to exploding regional markets outside your home country.",
+                    "Publicity (PR): Know exactly when you have enough momentum to warrant paying $2000/month for a publicist to secure blog coverage, playlisting, and magazine features.",
+                    "Legacy Building: Set up robust, formatted hard drive archives of every master, stem, and MIDI file you create to safeguard your catalog for 50+ years.",
+                    "The Exit Strategy: Plan a 20-year career arc that transitions you from a late-night bedroom producer into an Executive Producer, Label Owner, or Masterclass Educator."
+                ]
+            },
+            {
+                id: 11,
+                title: "Phase 11: The Creative Engine (Songwriting & Psychology)",
+                desc: "Overcome writer's block and engineer songs that trigger profound emotional responses.",
+                topics:[
+                    "The 'Big Idea': Train yourself to identify the undeniable core hook—whether a vocal lyric, a synth lead, or a drum groove—and build the entire arrangement to support it.",
+                    "Modern Song Structures: Map the evolution from classic Verse-Chorus-Bridge pop structures to the evolving, DJ-friendly tension-and-release 'Journeys' of electronic music.",
+                    "Psychology of the 'Blank Canvas': Defeat session paralysis by intentionally setting arbitrary limitations (e.g., 'only 3 tracks', 'only sine waves') to jumpstart the creative brain.",
+                    "Top-Lining Mastery: Write sticky, rhythmic vocal melodies over pre-made instrumentals by focusing on repetitive phrasing, syncopation, and phonetic vowel sounds.",
+                    "Lyric Writing for Producers: Learn to steer vocalists in the booth—suggesting stronger verbs, removing clichés, and ensuring the lyrics match the emotional tone of the chords.",
+                    "Arrangement Arcs: Architect the macro-energy of a track over 3 minutes, ensuring the second chorus hits harder than the first through strategic layering.",
+                    "The 'Finish the Song' Intervention: Break the habit of making brilliant 8-bar loops that never go anywhere by forcing yourself to copy-paste the loop into a 3-minute skeleton immediately.",
+                    "Collaborative Etiquette: Master studio diplomacy; learn how to politely veto bad ideas, encourage timid artists, and leave your own ego at the door to serve the song.",
+                    "Vocal Arrangement: Elevate a simple lead vocal by writing cinematic, contrapuntal backing harmonies, rhythmic whispers, and ad-libs that pan wildly.",
+                    "Genre-Blending Theory: Engineer entirely new sub-genres by cross-pollinating the rhythmic swing of Boom-Bap with the aggressive sound design of Dubstep, or jazz chords with Techno.",
+                    "The 'Subtracting' Technique: Save a muddy, chaotic mix by aggressively muting parts—discovering that removing the rhythm guitar makes the synth lead sound massive.",
+                    "Reference Track Anatomy: Drop a Billboard Top 10 track into your DAW and place markers at every single crash cymbal, bass drop, and transition to steal its structural blueprint.",
+                    "Creative Constraints: Lock yourself out of your VST folder and write an entire song using only default DAW plugins to force compositional innovation over sound design.",
+                    "The 'Second-Half' Evolution: Introduce a brand-new counter-melody, change the hi-hat pattern, or swap the bass patch in the second verse to prevent listener fatigue.",
+                    "Ear Candy: Sprinkle microscopic, highly-panned, heavily delayed audio treats (foley, vocal chops, reversed synths) exclusively in the transitions to reward headphone listeners.",
+                    "Bridge/Breakdown Mastery: Write a section that drops the listener into a completely different emotional key or rhythmic feel, maximizing the impact when the main hook returns.",
+                    "Frequency vs. Emotion: Correlate frequency bands to feelings—understand why rolling off the highs creates 'nostalgia' and boosting 2-5kHz creates 'urgency.'",
+                    "The Producer's 'Vibe': Curate your physical studio space—lighting, temperature, incense, and hospitality—to make artists feel completely uninhibited and vulnerable.",
+                    "Objective Self-Review: Bounce your mix, leave the studio, and listen in the car as a 'fan' rather than the 'engineer,' noting emotional disconnects rather than technical flaws.",
+                    "Tempo & Key Psychology: Select BPMs and root keys intentionally; understand why 120BPM feels like walking, 174BPM induces adrenaline, and D Minor is historically 'sad.'",
+                    "The 'Wall' & How to Break It: Recognize the midpoint of production where you hate your own song, and deploy specific workflow resets to push through to the finish line.",
+                    "Storytelling Through Sound: Treat instrumental tracks like cinema, establishing themes, conflicts (dissonance), and resolutions (consonance) without using a single word.",
+                    "Demoitis: Recognize the psychological trap of falling in love with a rough, unmixed demo, preventing you from accepting the vastly superior, polished final master.",
+                    "The Art of the 'Outro': Craft fading, evolving, or abrupt endings that act as a psychological cliffhanger, subconsciously forcing the listener to hit repeat.",
+                    "Creative Longevity: Build a sustainable relationship with music—balancing input (reading, art, living life) with output (producing) to stay relentlessly inspired for decades."
+                ]
+            },
+            {
+                id: 12,
+                title: "Phase 12: Sound for Visual Media",
+                desc: "Transition your audio skills to film, television, and interactive video game development.",
+                topics:[
+                    "Linear vs. Non-Linear Audio: Shift your mindset from a fixed left-to-right film timeline (linear) to a responsive, player-controlled video game environment (non-linear).",
+                    "The Foley Stage: Perform and record hyper-realistic footsteps, clothing rustles, and bone-crunches synced perfectly to an actor's movements on screen.",
+                    "ADR (Automated Dialogue Replacement): Re-record terrible on-set location audio in the studio, matching the actor's lip-sync and acoustic space perfectly in post.",
+                    "Ambient Bed Design: Loop and layer subtle wind, traffic, and 'Room Tone' to subconsciously establish the physical location and psychological mood of a scene.",
+                    "Soundscapes for VR: Master ambisonic mixing, attaching audio to 3D objects so the sound physically rotates when the user turns their VR headset.",
+                    "Wwise & FMOD Integration: Implement complex game audio middleware logic, translating your DAW audio stems into code-friendly events that game engines (Unity/Unreal) can trigger.",
+                    "Adaptive Music: Compose modular stems (low intensity, medium combat, boss fight) that crossfade seamlessly depending on the player's real-time actions.",
+                    "The 'Spotting' Session: Sit down with the film director to watch the rough cut, deciding precisely at which timecode the music should start, swell, and stop.",
+                    "Sound Design for Logos: Compress the emotional identity of a massive corporation into a 2-second mnemonic 'Sonic Brand' (e.g., the Netflix Ta-Dum).",
+                    "Cinematic Impact: Synthesize the massive, low-frequency 'Braams,' chaotic risers, and heavy sub-hits required for modern Hollywood trailer production.",
+                    "Syncing to Picture: Lock your DAW frame rates (24fps for film, 29.97 for TV) and understand SMPTE timecode to ensure your musical hits land exactly on visual cuts.",
+                    "Dialogue Cleaning: Perform audio surgery using iZotope RX to remove wind rumble, lavalier mic rustle, and background sirens from vital dialogue takes.",
+                    "Walladrops & Crowds: Layer distinct crowd murmur loops (Walla) to realistically populate a visual restaurant, stadium, or alien marketplace.",
+                    "Impact Engineering: Layer white noise, low-frequency oscillators, and real-world explosions, squashing them through limiters to make visual impacts feel physically devastating.",
+                    "Music for Commercials: Master the 30-second arc; grab attention in 1 second, build rapid tension, and resolve cleanly with space for the voiceover and logo.",
+                    "Stem Delivery for Film: Export dialogue, music, and effects (DME) completely isolated, giving the Dubbing Mixer ultimate control on the final cinematic soundstage.",
+                    "Dynamic Range for Cinema: Utilize the massive headroom of a movie theater (-24 LKFS standard) to create whispers that are genuinely quiet and explosions that are deafening.",
+                    "SFX Libraries: Curate, rigorously tag (using UCS standards), and organize terabytes of sound effects so you can instantly search for 'metal scrape heavy.'",
+                    "Synthesizing Sci-Fi: Combine granular synthesis, FM, and doppler-effect plugins to design futuristic laser blasts, spaceship engines, and UI teleportation sounds.",
+                    "Emotional Underscoring: Use minimal, ambient drones and single piano notes to support a dramatic scene without stepping on the dialogue or over-directing the audience.",
+                    "Leitmotif Theory: Compose specific melodic signatures or instrumental textures for individual characters, evolving the theme as the character grows.",
+                    "Pitching to Music Supervisors: Research what a TV show's supervisor is actively looking for, and pitch properly formatted metadata-rich instrumental tracks directly to them.",
+                    "Legal of 'Sound-alikes': Navigate the dangerous legal waters when a director asks you to make a track that sounds exactly like a hit song they couldn't afford to license.",
+                    "Orchestral Hybridization: Blend expensive, multi-gigabyte orchestral string libraries with massive, gritty analog synths for the modern blockbuster score aesthetic.",
+                    "Post-Production Workflow: Optimize a brutally fast template and keyboard macro system to meet the insane 48-hour turnaround times of commercial TV deadlines."
+                ]
+            },
+            {
+                id: 13,
+                title: "Phase 13: Physical Infrastructure (Studio Build)",
+                desc: "Design, wire, and build a world-class physical acoustic environment from scratch.",
+                topics:[
+                    "Studio Floorplans: Architect your room mathematically—avoiding parallel walls, calculating ideal monitor placement, and ensuring a streamlined path from the vocal booth to the desk.",
+                    "Electrical Foundations: Separate audio gear onto isolated breaker circuits, utilizing star-grounding to eliminate 60Hz hum and ground loops from your monitors.",
+                    "Power Conditioning: Invest in high-end power conditioners and voltage regulators to protect thousands of dollars of fragile gear from deadly electrical surges and sags.",
+                    "The Soldering Iron 101: Learn to wield a soldering iron to repair broken gear, fix guitar inputs, and build your own high-end Mogami XLR/TRS cables at a fraction of the cost.",
+                    "Custom Patchbay Logic: Design a complex analog matrix in a 48-point patchbay, routing normalled and half-normalled connections so gear can be instantly re-patched without going behind the desk.",
+                    "Acoustic Panel Construction: Build DIY broadband absorbers using safe rigid fiberglass (Owens Corning 703), breathable fabric, and wood frames for professional acoustic control.",
+                    "Studio Lighting Psychology: Install diffused, smart RGB lighting systems to physically alter the room's mood from bright and analytical (mixing) to dark and vibe-heavy (tracking).",
+                    "Rack Management: Mount heavy analog gear with proper thermal ventilation gaps, ensuring hot tube compressors don't fry the digital converters sitting above them.",
+                    "Computer Hardware for Audio: Spec and build a dedicated audio PC, prioritizing single-core clock speed for low latency and massive NVMe M.2 drives for sample streaming.",
+                    "Storage Solutions: Implement a RAID array or Network Attached Storage (NAS) to securely handle massive, multi-terabyte libraries and constant automatic backups.",
+                    "Networking for Audio: Transition from massive analog snakes to Ethernet—running Dante or AVB protocols to send hundreds of uncompressed audio channels via a single Cat6 cable.",
+                    "Custom Studio Furniture: Design an ergonomic workstation desk that angles rack gear directly at your eyes, provides a perfectly flat surface for a keyboard, and minimizes acoustic reflections.",
+                    "Mobile Rig Design: Condense a laptop, a powerful UAD interface, headphones, and a 25-key controller into an ultra-rugged Pelican case for elite production on flights and in hotels.",
+                    "Instrument Maintenance: Learn the basics of guitar intonation, drum head tuning, and opening up vintage synthesizers to clean scratchy potentiometers with contact cleaner.",
+                    "Microphone Storage: Store delicate large-diaphragm condensers and ribbons in upright, padded, humidity-controlled environments to prevent dust and moisture from ruining the capsule.",
+                    "Cable Topography: Master the physics of balanced (TRS/XLR) phase-canceling cables for long runs versus unbalanced (TS) cables for short instrument bursts.",
+                    "The 'Silent' Studio: Decouple computer towers, use silent hard drives, and build isolated tracking booths ('a room within a room') to completely eliminate fan noise and HVAC rumble.",
+                    "Monitor Placement Geometry: Position your studio monitors in a mathematically perfect equilateral triangle with your listening position, angling the tweeters directly at your ears.",
+                    "Multi-Computer Setups: Use Vienna Ensemble Pro over a local network to offload massive, CPU-heavy orchestral libraries to a secondary 'slave' computer.",
+                    "Troubleshooting 101: Develop a cold, logical, step-by-step diagnostic workflow to trace a dead audio signal from the microphone capsule through cables, preamps, and interfaces to the DAW.",
+                    "Hardware Calibration: Send test tones out of your DAW and physically calibrate the input/output screws on your analog outboard gear so 0 VU exactly matches -18dBFS digital.",
+                    "The DIY Synthesizer: Purchase and solder a basic Eurorack or standalone synth kit to fundamentally understand the electrical components of sound generation.",
+                    "Studio Safety: Ensure fire safety protocols, proper cable taping (gaffers tape, never duct tape), and safe decibel exposure limits to protect your clients and yourself.",
+                    "Ergonomic Health: Invest in a premium chair (Herman Miller style), an adjustable standing desk, and proper monitor height to avoid catastrophic back and carpal tunnel injuries.",
+                    "The 'Dream Studio' Roadmap: Create a phased, 5-year financial blueprint to upgrade from a bedroom setup to a treated garage, and eventually to a commercial multi-room facility."
+                ]
+            },
+            {
+                id: 17,
+                title: "Phase 17: Digital Signal Processing (DSP) & Math",
+                desc: "Learn the core mathematics powering every audio plugin and digital system.",
+                topics:[
+                    "Nyquist-Shannon Theorem: Mathematically prove why a digital system must sample at over twice the highest frequency (fs > 2 * fmax) to perfectly reconstruct an analog wave.",
+                    "Quantization & Bit Depth: Calculate digital dynamic range using the 6 dB per bit rule, understanding exactly how discrete binary values map to continuous analog voltages.",
+                    "Aliasing & Anti-Aliasing: Visualize how frequencies exceeding the Nyquist limit 'fold back' as ugly harmonic distortion, and why analog low-pass filters are required before conversion.",
+                    "Sampling Theory: Understand the math of impulse trains and how the digital-to-analog converter (DAC) uses a 'sinc' function to perfectly smooth staircase data into continuous sound.",
+                    "Fixed vs. Floating-Point: Understand why 32-bit floating-point processing provides effectively infinite internal headroom (+770 dB), making it impossible to clip audio inside modern DAWs.",
+                    "Fourier Transform (FFT): Break down the complex calculus that converts a time-domain waveform into a frequency-domain spectrum, the engine behind every EQ and analyzer.",
+                    "Spectral Leakage & Windowing: Apply mathematical Hanning and Hamming window functions to smooth out the edges of audio blocks before FFT analysis, preventing false frequency spikes.",
+                    "Z-Transform Theory: Cross the bridge from continuous Laplace transforms into discrete digital time, mapping filter poles and zeros on the complex Z-plane.",
+                    "FIR Filters: Design Finite Impulse Response filters that offer perfect linear phase, relying on heavy CPU math (convolution) without any feedback loops.",
+                    "IIR Filters: Construct Infinite Impulse Response filters that use feedback loops to mimic analog EQs, requiring vastly less CPU but introducing natural phase shifts.",
+                    "Biquad Filter Topologies: Analyze the foundational two-pole, two-zero equation that powers 90% of the digital low-pass, high-pass, and shelving EQs in your DAW.",
+                    "Zero-Delay Feedback (ZDF): Solve the mathematical paradox of digital feedback loops without introducing a one-sample delay, resulting in authentic, analog-sounding virtual synthesizer filters.",
+                    "Convolution Logic: Perform point-by-point multiplication and addition of an input signal against an Impulse Response to mathematically imprint the acoustic DNA of a real room.",
+                    "Delay Line Theory: Program digital ring buffers, using mathematical interpolation (linear or cubic) to read fractional delays without creating digital artifacts.",
+                    "Phase Vocoding: Manipulate the FFT magnitude and phase bins separately to stretch the time of an audio file without changing its pitch, or vice-versa.",
+                    "Waveshaping: Route a clean sine wave through non-linear mathematical functions (like Chebyshev polynomials) to explicitly generate specific harmonic distortion and overdrive.",
+                    "Dynamics Detection: Code the difference between absolute Peak detection (instant digital clips), RMS (average mathematical power), and VU (analog modeled ballistics).",
+                    "Envelope Following: Calculate exponential decay curves using the classic Time Constant math (T = RC) to build the brain of digital compressors and gates.",
+                    "Look-ahead Logic: Implement invisible circular buffers that delay the audio by a few milliseconds, giving your brickwall limiter time to calculate math and catch instantaneous transients.",
+                    "Dithering & Noise Shaping: Use Triangular Probability Density Function (TPDF) noise to scramble the lowest bit of audio, mathematically converting truncation distortion into analog-style tape hiss.",
+                    "Oversampling Mastery: Run specific plugin algorithms internally at 4x or 8x the sample rate (e.g., 192kHz) to process saturation cleanly, filtering out aliasing before dropping back to 48kHz.",
+                    "Phase Correlation: Use trigonometric analysis (+1 to -1) to mathematically calculate stereo width and ensure the Left and Right channels aren't canceling out the mono center.",
+                    "All-pass Filters: Design filters that do absolutely nothing to the frequency magnitude but radically alter the phase, useful for spreading out sharp transients and fixing stereo width.",
+                    "Feedback Delay Networks (FDN): Connect a matrix of delays and all-pass filters where the outputs feed back into the inputs, mathematically generating lush, algorithmic reverbs like the Valhalla series.",
+                    "Pitch Detection Algorithms: Code Autocorrelation and YIN methods, tracking the repeating zero-crossings of a waveform to tell Auto-Tune exactly what note the singer is hitting.",
+                    "SIMD & Optimization: Write low-level C++ code that utilizes Single Instruction, Multiple Data (SIMD) CPU instructions to process four audio channels simultaneously, saving massive CPU load.",
+                    "Buffer Management: Architect robust audio engine code that handles incoming blocks of sample data gracefully, preventing CPU spikes, audio dropouts, and digital jitter.",
+                    "Sample Rate Conversion (SRC): Use mathematically intense polyphase FIR filters to downsample audio (e.g., 96k to 44.1k) transparently without introducing ringing or aliasing artifacts.",
+                    "Neural DSP Inference: Map out how matrix multiplications inside a trained neural network process real-time guitar signals (NAM) or vocal transformations without crashing your processor.",
+                    "Physical Modeling Math: Translate the physics of the real world—solving the 1D Wave Equation—to code hyper-realistic virtual strings, tubes, and membranes mathematically from scratch."
+                ]
+            }
+        ];
+
+        // System Variables
+        let currentPhaseId = 1;
+        let userProgress = JSON.parse(localStorage.getItem('masterclass_progress')) || {};
+
+        // DOM Elements
+        const navLinksContainer = document.getElementById('nav-links');
+        const contentBody = document.getElementById('content-body');
+        const searchInput = document.getElementById('search-input');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercentage = document.getElementById('progress-percentage');
+        const currentPhaseDisplay = document.getElementById('current-phase-display');
+
+        // Initialization
+        function init() {
+            renderSidebar();
+            renderPhase(currentPhaseId);
+            updateOverallProgress();
+        }
+
+        // Render Navigation Links in Sidebar
+        function renderSidebar() {
+            navLinksContainer.innerHTML = '';
+            courseData.forEach(phase => {
+                const navItem = document.createElement('div');
+                navItem.className = `nav-item ${phase.id === currentPhaseId ? 'active' : ''}`;
+                navItem.innerText = phase.title.split(':')[0]; // e.g. "Phase 1"
+                navItem.onclick = () => {
+                    currentPhaseId = phase.id;
+                    searchInput.value = ''; // clear search on phase change
+                    renderSidebar(); // Update active state
+                    renderPhase(currentPhaseId);
+                };
+                navLinksContainer.appendChild(navItem);
+            });
+        }
+
+        // Action Item Generator (adds interactivity to the text)
+        function generateActionItem(title) {
+            const actions =[
+                "Open your DAW right now and try replicating this concept on a basic sine wave or drum loop.",
+                "Find a commercial track you love and actively listen to identify how they applied this technique.",
+                "Spend 15 minutes today experimenting with this exact parameter without looking at the visual analyzer.",
+                "Map this parameter to a physical knob on your MIDI controller to build muscle memory.",
+                "Save this configuration as a preset in your DAW to speed up your workflow tomorrow."
+            ];
+            // Pick a random action or base it on title length for determinism
+            const randomAction = actions[title.length % actions.length];
+            return `<strong>Action Item:</strong> ${randomAction}`;
+        }
+
+        // Render Content for a specific Phase
+        function renderPhase(phaseId, filterText = '') {
+            contentBody.innerHTML = '';
+            
+            // Find Phase Data
+            const phase = courseData.find(p => p.id === phaseId);
+            currentPhaseDisplay.innerText = phase.title;
+
+            // Phase Title & Desc
+            if(!filterText) {
+                const titleEl = document.createElement('h2');
+                titleEl.className = 'phase-title';
+                titleEl.innerText = phase.title;
+                
+                const descEl = document.createElement('p');
+                descEl.className = 'phase-desc';
+                descEl.innerText = phase.desc;
+
+                contentBody.appendChild(titleEl);
+                contentBody.appendChild(descEl);
+            }
+
+            // Render Topics
+            phase.topics.forEach((topicStr, index) => {
+                const splitIndex = topicStr.indexOf(':');
+                const title = topicStr.substring(0, splitIndex).trim();
+                const content = topicStr.substring(splitIndex + 1).trim();
+                const topicId = `p${phaseId}_t${index}`; // unique ID for saving progress
+
+                // Search Filter Logic
+                if (filterText) {
+                    const searchStr = filterText.toLowerCase();
+                    if (!title.toLowerCase().includes(searchStr) && !content.toLowerCase().includes(searchStr)) {
+                        return; // Skip rendering if doesn't match search
+                    }
+                }
+
+                // Create Accordion Module
+                const moduleDiv = document.createElement('div');
+                const isCompleted = userProgress[topicId];
+                moduleDiv.className = `module ${isCompleted ? 'completed' : ''}`;
+
+                // Header
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'module-header';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'checkbox';
+                checkbox.checked = !!isCompleted;
+                
+                // Prevent accordion toggle when clicking checkbox
+                checkbox.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleProgress(topicId, checkbox.checked, moduleDiv);
+                };
+
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'module-title';
+                titleDiv.innerHTML = `<span>${index + 1}.</span> ${title}`;
+
+                const toggleIcon = document.createElement('div');
+                toggleIcon.className = 'module-toggle';
+                toggleIcon.innerHTML = '▼';
+
+                headerDiv.appendChild(checkbox);
+                headerDiv.appendChild(titleDiv);
+                headerDiv.appendChild(toggleIcon);
+
+                // Body Content
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'module-content';
+                
+                const innerDiv = document.createElement('div');
+                innerDiv.className = 'module-content-inner';
+                innerDiv.innerText = content;
+
+                // Interactive Action Item
+                const actionItemDiv = document.createElement('div');
+                actionItemDiv.className = 'action-item';
+                actionItemDiv.innerHTML = generateActionItem(title);
+                
+                innerDiv.appendChild(actionItemDiv);
+                contentDiv.appendChild(innerDiv);
+
+                // Toggle Accordion Logic
+                headerDiv.onclick = () => {
+                    const isOpen = moduleDiv.classList.contains('open');
+                    
+                    // Close all others (optional: comment out to allow multiple open)
+                    document.querySelectorAll('.module').forEach(mod => {
+                        mod.classList.remove('open');
+                        mod.querySelector('.module-content').style.maxHeight = null;
+                    });
+
+                    if (!isOpen) {
+                        moduleDiv.classList.add('open');
+                        contentDiv.style.maxHeight = contentDiv.scrollHeight + "px";
+                    }
+                };
+
+                moduleDiv.appendChild(headerDiv);
+                moduleDiv.appendChild(contentDiv);
+                contentBody.appendChild(moduleDiv);
+            });
+
+            if(contentBody.innerHTML === '') {
+                contentBody.innerHTML = '<p style="color:var(--text-muted)">No matching topics found in this phase.</p>';
+            }
+        }
+
+        // Save progress to LocalStorage
+        function toggleProgress(topicId, isChecked, moduleDiv) {
+            userProgress[topicId] = isChecked;
+            localStorage.setItem('masterclass_progress', JSON.stringify(userProgress));
+            
+            if(isChecked) {
+                moduleDiv.classList.add('completed');
+            } else {
+                moduleDiv.classList.remove('completed');
+            }
+            updateOverallProgress();
+        }
+
+        // Calculate and animate overall progress bar
+        function updateOverallProgress() {
+            let totalTopics = 0;
+            courseData.forEach(phase => totalTopics += phase.topics.length);
+            
+            const completedTopics = Object.values(userProgress).filter(val => val === true).length;
+            const percentage = Math.round((completedTopics / totalTopics) * 100) || 0;
+            
+            progressFill.style.width = percentage + '%';
+            progressPercentage.innerText = percentage + '%';
+        }
+
+        // Global Search Functionality
+        searchInput.addEventListener('input', (e) => {
+            const text = e.target.value;
+            renderPhase(currentPhaseId, text);
+            // If searching, display custom text
+            if(text) {
+                currentPhaseDisplay.innerText = `Search Results in Phase ${currentPhaseId}`;
+            } else {
+                currentPhaseDisplay.innerText = courseData.find(p => p.id === currentPhaseId).title;
+            }
+        });
+
+        // Start App
+        init();
+
+    </script>
+</body>
+</html>
