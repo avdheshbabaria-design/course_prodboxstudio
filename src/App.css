@@ -1,0 +1,95 @@
+/* App-specific styles */
+
+/* Ensure smooth scroll behavior is disabled for GSAP */
+html {
+  scroll-behavior: auto !important;
+}
+
+/* Pin spacer styling */
+.pin-spacer {
+  pointer-events: none !important;
+}
+
+.pin-spacer > * {
+  pointer-events: auto !important;
+}
+
+/* Ensure sections stack properly */
+.section-pinned {
+  will-change: transform;
+}
+
+/* Chapter number animation */
+.chapter-number {
+  will-change: transform, opacity;
+}
+
+/* Info panel animation */
+.info-panel {
+  will-change: transform, opacity;
+}
+
+/* Background image animation */
+.chapter-bg {
+  will-change: transform;
+}
+
+/* Hero content animation */
+.hero-headline-word {
+  will-change: transform, opacity;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .section-pinned .info-panel {
+    left: 5vw !important;
+    width: 90vw !important;
+    max-width: none !important;
+  }
+  
+  .hero-headline-group {
+    max-width: 90vw !important;
+  }
+  
+  .hero-bottom-left {
+    max-width: 70vw !important;
+  }
+  
+  .chapter-number {
+    font-size: clamp(80px, 25vw, 150px) !important;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .chapter-bg,
+  .hero-bg {
+    transform: none !important;
+  }
+  
+  .chapter-number,
+  .info-panel,
+  .hero-headline-word,
+  .hero-subcontent,
+  .hero-bottom {
+    transition: opacity 0.3s ease !important;
+  }
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #B6FF2E;
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.loading {
+  opacity: 0;
+}
+
+.loaded {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
