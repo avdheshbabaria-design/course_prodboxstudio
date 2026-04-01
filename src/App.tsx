@@ -558,7 +558,7 @@ function App() {
               </p>
               <div className="flex items-center gap-2 text-sm text-[#A7ACB8]">
                 <span>Questions?</span>
-                <a href="prodboxcontact@gmail.com" className="text-neon hover:underline">
+                <a href="mailto:prodboxcontact@gmail.com" className="text-neon hover:underline">
                   prodboxcontact@gmail.com
                 </a>
               </div>
