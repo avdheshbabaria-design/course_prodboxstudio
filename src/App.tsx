@@ -430,7 +430,7 @@ function App() {
   return (
     <div ref={mainRef} className="relative">
       {/* Grain Overlay */}
-      <div className="grain-overlay opacity-0" />
+      <div className="grain-overlay" />
 
       {/* Navigation */}
       <nav className="hero-nav fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[4vw] py-[4vh]">
