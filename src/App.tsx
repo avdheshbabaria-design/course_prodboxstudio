@@ -434,9 +434,11 @@ function App() {
 
       {/* Navigation */}
       <nav className="hero-nav fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[4vw] py-[4vh]">
-        <div className="font-display text-xl font-bold tracking-tight text-[#F4F6FA]">
-          Prodbox
-        </div>
+        <img 
+  src="/logo.svg" 
+  alt="Prodbox Logo" 
+  className="h-7 w-auto" 
+/>
         <div className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-[0.12em] text-[#A7ACB8]">
           <a href="#syllabus" className="nav-link hover:text-[#F4F6FA] transition-colors">Syllabus</a>
           <a href="#instructors" className="nav-link hover:text-[#F4F6FA] transition-colors">Instructors</a>
@@ -610,9 +612,12 @@ function App() {
           {/* Footer */}
           <footer className="mt-24 pt-8 border-t border-[rgba(244,246,250,0.14)]">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="font-display text-lg font-bold text-[#F4F6FA]">
-                Prodbox
-              </div>
+              
+<img 
+  src="/logo.svg" 
+  alt="Prodbox Logo" 
+  className="h-7 w-auto" 
+/>
               <div className="flex gap-8 font-mono text-xs uppercase tracking-[0.12em] text-[#A7ACB8]">
                 <a href="#" className="hover:text-[#F4F6FA] transition-colors">Privacy</a>
                 <a href="#" className="hover:text-[#F4F6FA] transition-colors">Terms</a>
